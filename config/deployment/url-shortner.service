@@ -1,0 +1,15 @@
+[Unit]
+Description=URL Shortener
+After = network.target
+
+[Service]
+User = root
+WorkingDirectory = Golang Proj/url-shortener
+ExecStart=/Golang Proj/url-shortener/url-shortener
+Restart=always
+RestartSec=4
+StandartOutput=inherit
+EnviromentFile=/Golang Proj/url-shortener/url-shortener
+
+[Install]
+WantedBy=multi-user.target
