@@ -23,7 +23,6 @@ type URLDeleter interface {
 func New(log *slog.Logger, urlDeleter URLDeleter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.delete.New"
-		яя
 		log := log.With(
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),

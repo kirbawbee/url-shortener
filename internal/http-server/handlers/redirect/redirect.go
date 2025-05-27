@@ -9,9 +9,9 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 
-	resp "urlShorter/internal/lib/api/response"
-	"urlShorter/internal/lib/logger/sl"
-	"urlShorter/internal/storage"
+	resp "url-shortener/internal/lib/api/response"
+	"url-shortener/internal/lib/logger/sl"
+	"url-shortener/internal/storage"
 )
 
 //go:generate mockery --name URLGetter --output ./moks --filename URLGetter.go --case underscore
