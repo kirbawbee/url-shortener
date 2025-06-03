@@ -2,8 +2,11 @@ package main
 
 import (
 	"log/slog"
+	"net/http"
 	"os"
 	"url-shortener/internal/config"
+	"url-shortener/internal/http-server/handlers/redirect"
+	"url-shortener/internal/http-server/handlers/url/save"
 	mwLogger "url-shortener/internal/http-server/middleware/logger"
 	"url-shortener/internal/lib/logger/handlers/slogpretty"
 	"url-shortener/internal/lib/logger/sl"
@@ -27,7 +30,6 @@ func main() {
 	log := setupLogger(cfg.Env)
 	log.Info("начата работа url-shorter", slog.String("env", cfg.Env))
 	log.Debug("дебаг-сообщения были включены")
-	log.Error("ошибки")
 
 	// Storage: sqllite
 	storage, err := sqlite.New(cfg.StoragePath)
@@ -46,9 +48,31 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	_ = storage
+	router.Route("/url", func(r chi.Router) {
+		r.Use(middleware.BasicAuth("url-shortener", map[string]string{
+			cfg.HTTPServer.User: cfg.HTTPServer.Password}))
 
+		r.Post("/", save.New(log, storage))
+		router.Delete("/{alias}", redirect.New(log, storage))
+	})
+
+	router.Get("/{alias}", redirect.New(log, storage))
+
+	log.Info("Запуск сервера", slog.String("address", cfg.Address))
 	// Запуск сервера
+	srv := http.Server{
+		Addr:         cfg.Address,
+		Handler:      router,
+		ReadTimeout:  cfg.HTTPServer.Timeout,
+		WriteTimeout: cfg.HTTPServer.Timeout,
+		IdleTimeout:  cfg.HTTPServer.IdleTimeout,
+	}
+
+	if err := srv.ListenAndServe(); err != nil {
+		log.Error("ошибка запуска сервера")
+	}
+
+	log.Error("сервер остановлен")
 }
 
 func setupLogger(Env string) *slog.Logger {
