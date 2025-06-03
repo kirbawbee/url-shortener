@@ -23,7 +23,7 @@ type HTTPServer struct {
 }
 
 func MustLoad() *Config {
-	configPath := "E:/Golang Proj/urlShorter/config/local.yaml"
+	configPath := "../../config/local.yaml"
 	if configPath == " " {
 		log.Fatal("Не найден конфиг файл")
 	}
